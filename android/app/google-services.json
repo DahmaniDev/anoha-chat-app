@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "772382860729",
+    "project_id": "kelemni-863d9",
+    "storage_bucket": "kelemni-863d9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:772382860729:android:497d780e5d3538a7980268",
+        "android_client_info": {
+          "package_name": "com.anoha.kelemni"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "772382860729-n07h8nf09kcbnv8so7nkg3af6664hppq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-X7euLBgl1nMomd_eYcagfgXynI3pMbY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "772382860729-n07h8nf09kcbnv8so7nkg3af6664hppq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

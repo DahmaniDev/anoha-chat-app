@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:kelemni/services/auth.dart';
 
 class GoogleSignInButton extends StatefulWidget {
   @override
@@ -31,6 +32,7 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
             _isSigningIn = true;
           });
 
+          AuthMethods().signInWithGoogle(context);
           // TODO: Add method call to the Google Sign-In authentication
 
           setState(() {

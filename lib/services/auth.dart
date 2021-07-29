@@ -6,12 +6,13 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kelemni/helperfunctions/sharedpref_helper.dart';
 import 'package:kelemni/screens/home.dart';
 import 'package:kelemni/services/database.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthMethods{
   final FirebaseAuth auth = FirebaseAuth.instance;
 
-  getCurrentUser(){
-    return auth.currentUser;
+  getCurrentUser() async{
+    return await auth.currentUser;
   }
 
   signInWithGoogle(BuildContext ctx) async{
@@ -39,8 +40,8 @@ class AuthMethods{
       SharedPreferenceHelper().saveUserId(userDetails.uid);
       SharedPreferenceHelper()
           .saveUserName(userDetails.email!.replaceAll("@gmail.com", ""));
-      SharedPreferenceHelper().saveDisplayName(userDetails!.displayName!);
-      SharedPreferenceHelper().saveUserProfileUrl(userDetails!.photoURL!);
+      SharedPreferenceHelper().saveDisplayName(userDetails.displayName!);
+      SharedPreferenceHelper().saveUserProfileUrl(userDetails.photoURL!);
 
       Map<String, dynamic> userInfoMap = {
         "email": userDetails.email!,
@@ -53,5 +54,11 @@ class AuthMethods{
         Navigator.pushReplacement(ctx, MaterialPageRoute(builder: (context) => Home()));
       });
     }
+  }
+
+  Future signOut() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.clear();
+    await auth.signOut();
   }
 }

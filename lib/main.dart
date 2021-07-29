@@ -1,6 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:kelemni/screens/home.dart';
 import 'package:kelemni/screens/signin.dart';
+import 'package:kelemni/services/auth.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +22,17 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: SignIn()
+      //Si l'utilisateur déja authentifie une fois avec cette appareil il va être directement redirégé vers l'UI Home
+      home: FutureBuilder(
+        future: AuthMethods().getCurrentUser(),
+        builder: (context, AsyncSnapshot<dynamic> snapshot){
+          if(snapshot.hasData){
+            return Home();
+          } else {
+            return SignIn();
+          }
+        },
+      ),
     );
   }
 }

@@ -215,6 +215,7 @@ class _HomeState extends State<Home> {
         color: AppTheme.isDarkMode
             ? AppTheme.backgroundDarkModeColor
             : AppTheme.backgroundLightModeColor,
+        height: MediaQuery.of(context).size.height,
         child: _currentIndex == 0
             ? Column(
                 children: [
@@ -294,7 +295,10 @@ class _HomeState extends State<Home> {
             : _currentIndex == 1
                 ? Padding(
                     padding: EdgeInsets.only(top: 20.0),
-                    child: chatRoomsList(),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: chatRoomsList(),
+                    ),
                   )
                 : _currentIndex == 2
                     ? ProfilePage(myUserName, myName, myProfilePic, myEmail)

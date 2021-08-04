@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kelemni/widgets/facebook_sign_in_button.dart';
 import 'package:kelemni/widgets/google_sign_in_button.dart';
 
 class SignIn extends StatefulWidget {
@@ -52,7 +53,8 @@ class _SignInState extends State<SignIn> {
                     ),
                   ),
                   SizedBox(height: 50),
-                  GoogleSignInButton()
+                  GoogleSignInButton(),
+                  FacebookSignInButton()
                 ],
               ),
             ),

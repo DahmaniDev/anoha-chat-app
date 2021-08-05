@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:kelemni/helperfunctions/sharedpref_helper.dart';
@@ -16,7 +18,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   late String chatRoomId, messageId = "";
   late String myName, myProfilPic, myUserName, myEmail;
-  late Stream messageStream;
+  Stream messageStream= new StreamController().stream;
   TextEditingController messageController = TextEditingController();
 
   getMyInfoFromSharedPreferences() async {
@@ -123,14 +125,11 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  getAndSetMessages() async {
-    messageStream = await DatabaseMethods().getChatRoomMessages(chatRoomId);
-    setState(() {});
-  }
 
   doThisOnLaunch() async {
     await getMyInfoFromSharedPreferences();
-    getAndSetMessages();
+    messageStream = await DatabaseMethods().getChatRoomMessages(chatRoomId);
+    setState(() {});
   }
 
   @override

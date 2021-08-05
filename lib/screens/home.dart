@@ -1,12 +1,17 @@
+
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+
 import 'package:kelemni/helperfunctions/sharedpref_helper.dart';
-import 'package:kelemni/screens/chatscreen.dart';
 import 'package:kelemni/screens/profile.dart';
 import 'package:kelemni/screens/signin.dart';
 import 'package:kelemni/services/auth.dart';
 import 'package:kelemni/services/database.dart';
 import 'package:kelemni/Global/Theme.dart' as AppTheme;
+import 'package:kelemni/widgets/chatRoomListTile.dart';
+import 'package:kelemni/widgets/searchListUserTile.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -15,9 +20,9 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   bool isSearching = false;
-  bool isLoading = true;
   int _currentIndex = 0;
-  late Stream usersStream, chatRoomsStream;
+  late Stream usersStream;
+  Stream chatRoomsStream = new StreamController().stream;
   late String myName, myProfilePic, myUserName, myEmail;
   TextEditingController searchController = TextEditingController();
 
@@ -25,19 +30,15 @@ class _HomeState extends State<Home> {
   initState() {
     AppTheme.isDarkMode = false;
     super.initState();
-    onScreenLoaded().whenComplete(() {
-      setState(() {});
-    });
-    Future.delayed(const Duration(seconds: 2), () {
-      setState(() {
-        isLoading = false;
-      });
-    });
+    onScreenLoaded();
   }
 
   onScreenLoaded() async {
     await getMyInfoFromSharedPreference();
-    getChatRooms();
+    chatRoomsStream = await DatabaseMethods().getChatRooms();
+    setState(() {
+
+    });
   }
 
   getMyInfoFromSharedPreference() async {
@@ -56,39 +57,19 @@ class _HomeState extends State<Home> {
     }
   }
 
-  getChatRooms() async {
-    chatRoomsStream = await DatabaseMethods().getChatRooms();
-    setState(() {});
-  }
-
   Widget chatRoomsList() {
     return StreamBuilder<dynamic>(
       stream: chatRoomsStream,
       builder: (context, snapshot) {
         return snapshot.hasData
             ? ListView.builder(
-                itemCount: snapshot.data.docs.length,
-                shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  DocumentSnapshot ds = snapshot.data.docs[index];
-                  return ChatRoomListTile(ds["lastMessage"], ds.id, myUserName);
-                })
-            : isLoading
-                ? Center(child: CircularProgressIndicator())
-                : Expanded(
-                    child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Flexible(
-                            flex: 1,
-                            child: Image.asset(
-                              'assets/notfound.png',
-                              height: 160,
-                            ),
-                          )
-                        ]),
-                  );
+            itemCount: snapshot.data.docs.length,
+            shrinkWrap: true,
+            itemBuilder: (context, index) {
+              DocumentSnapshot ds = snapshot.data.docs[index];
+              return ChatRoomListTile(ds["lastMessage"], ds.id, myUserName,ds["lastMessageSendTs"] as Timestamp);
+            })
+            : Center(child: CircularProgressIndicator());
       },
     );
   }
@@ -114,7 +95,11 @@ class _HomeState extends State<Home> {
                       profileUrl: ds["imgUrl"],
                       name: ds["name"],
                       email: ds["email"],
-                      username: ds["username"]);
+                      username: ds["username"],
+                      chatRoomId: getChatRoomIdByUserName(myUserName, ds["username"]),
+                      myUserName: myUserName,
+                      context: context
+                  );
                 },
               )
             : Center(
@@ -126,53 +111,6 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget searchListUserTile({String? profileUrl, name, username, email}) {
-    return GestureDetector(
-      onTap: () {
-        var chatRoomId = getChatRoomIdByUserName(myUserName, username);
-        Map<String, dynamic> chatRoomInfoMap = {
-          "users": [myUserName, username]
-        };
-        DatabaseMethods().createChatRoom(chatRoomId, chatRoomInfoMap);
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => ChatScreen(username, name)));
-      },
-      child: Container(
-        margin: EdgeInsets.symmetric(vertical: 8, horizontal: 15),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(40),
-              child: Image.network(
-                profileUrl!,
-                height: 40,
-                width: 40,
-              ),
-            ),
-            SizedBox(width: 12),
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(
-                name,
-                style: TextStyle(
-                    color: AppTheme.isDarkMode
-                        ? AppTheme.textDarkModeColor
-                        : AppTheme.textLightModeColor),
-              ),
-              Text(
-                email,
-                style: TextStyle(
-                    color: AppTheme.isDarkMode
-                        ? AppTheme.textDarkModeColor
-                        : AppTheme.textLightModeColor),
-              )
-            ])
-          ],
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -182,9 +120,10 @@ class _HomeState extends State<Home> {
           'Kelemni',
           style: TextStyle(fontFamily: 'KaushanScript', fontSize: 28),
         ),
-        backgroundColor: AppTheme.isDarkMode
-            ? AppTheme.appBarDarkModeColor
-            : AppTheme.appBarLightModeColor,
+        // backgroundColor: AppTheme.isDarkMode
+        //     ? AppTheme.appBarDarkModeColor
+        //     : AppTheme.appBarLightModeColor,
+        backgroundColor: AppTheme.appBarLightModeColor,
         elevation: 8.0,
         actions: [
           IconButton(
@@ -232,8 +171,7 @@ class _HomeState extends State<Home> {
                                   icon: Icon(Icons.arrow_back,
                                       color: AppTheme.isDarkMode
                                           ? AppTheme.buttonDarkModeColor
-                                          : AppTheme
-                                              .buttonLightModeColor),
+                                          : AppTheme.buttonLightModeColor),
                                   onPressed: () {
                                     setState(() {
                                       isSearching = false;
@@ -266,8 +204,7 @@ class _HomeState extends State<Home> {
                                     hintStyle: TextStyle(
                                         color: AppTheme.isDarkMode
                                             ? AppTheme.textDarkModeColor
-                                            : AppTheme
-                                                .textLightModeColor),
+                                            : AppTheme.textLightModeColor),
                                     //fillColor: isDarkMode ? AppTheme.Theme.buttonDarkModeColor : AppTheme.Theme.buttonLightModeColor,
                                     hintText: 'Chercher un utilisateur'))),
                         IconButton(
@@ -309,98 +246,29 @@ class _HomeState extends State<Home> {
         elevation: 5.0,
         type: BottomNavigationBarType.shifting,
         items: [
+          //292828
           BottomNavigationBarItem(
-              icon: Icon(Icons.search),
-              label: 'Recherche',
-              backgroundColor: AppTheme.buttonLightModeColor),
+              icon: Icon(Icons.search, color: AppTheme.appBarLightModeColor),
+              //label: 'Recherche',
+              title: Text('Recherche', style: TextStyle(color: AppTheme.appBarLightModeColor)),
+              backgroundColor: AppTheme.isDarkMode ? Color(0xFF292828) : Colors.white),
           BottomNavigationBarItem(
-              icon: Icon(Icons.chat),
-              label: 'Chat',
-              backgroundColor: AppTheme.buttonLightModeColor),
+              icon: Icon(Icons.chat, color: AppTheme.appBarLightModeColor),
+              //label: 'Chat',
+              title: Text('Chat', style: TextStyle(color: AppTheme.appBarLightModeColor)),
+              backgroundColor: AppTheme.isDarkMode ? Color(0xFF292828) : Colors.white),
           BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Profil',
-              backgroundColor: AppTheme.buttonLightModeColor)
+              icon: Icon(Icons.person, color: AppTheme.appBarLightModeColor,),
+              title: Text('Profil', style: TextStyle(color: AppTheme.appBarLightModeColor)),
+              backgroundColor: AppTheme.isDarkMode ? Color(0xFF292828) : Colors.white),
         ],
-        onTap: (index) => setState(() {
-          _currentIndex = index;
-        }),
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
       ),
     );
   }
 }
 
-class ChatRoomListTile extends StatefulWidget {
-  final String lastMessage, chatRoomId, myUsername;
-  ChatRoomListTile(this.lastMessage, this.chatRoomId, this.myUsername);
-
-  @override
-  _ChatRoomListTileState createState() => _ChatRoomListTileState();
-}
-
-class _ChatRoomListTileState extends State<ChatRoomListTile> {
-  String profilePicUrl = "", name = "", username = "";
-
-  getThisUserInfo() async {
-    username =
-        widget.chatRoomId.replaceAll(widget.myUsername, "").replaceAll("_", "");
-    QuerySnapshot querySnapshot = await DatabaseMethods().getUserInfo(username);
-    name = "${querySnapshot.docs[0]["name"]}";
-    profilePicUrl = "${querySnapshot.docs[0]["imgUrl"]}";
-    setState(() {});
-  }
-
-  @override
-  void initState() {
-    getThisUserInfo();
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => ChatScreen(username, name)));
-      },
-      child: Container(
-        margin: EdgeInsets.symmetric(vertical: 8),
-        width: MediaQuery.of(context).size.width * 0.7,
-        child: Column(
-          children: [
-            Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(30),
-                  child: Image.network(
-                    profilePicUrl,
-                    height: 40,
-                    width: 40,
-                  ),
-                ),
-                SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    SizedBox(height: 3),
-                    Text(widget.lastMessage)
-                  ],
-                ),
-                SizedBox(width: 80),
-              ],
-            ),
-            Divider(
-                thickness: 0.8,
-                color: AppTheme.buttonLightModeColor.withOpacity(0.3))
-          ],
-        ),
-      ),
-    );
-  }
-}

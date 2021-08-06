@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import 'package:kelemni/helperfunctions/sharedpref_helper.dart';
 import 'package:kelemni/screens/profile.dart';
+import 'package:kelemni/screens/profilePage.dart';
 import 'package:kelemni/screens/signin.dart';
 import 'package:kelemni/services/auth.dart';
 import 'package:kelemni/services/database.dart';
@@ -238,7 +239,7 @@ class _HomeState extends State<Home> {
                     ),
                   )
                 : _currentIndex == 2
-                    ? ProfilePage(myUserName, myName, myProfilePic, myEmail)
+                    ? ProfileScreen(myUserName, myName, myProfilePic, myEmail)
                     : Container(),
       ),
       bottomNavigationBar: BottomNavigationBar(

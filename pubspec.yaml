@@ -86,6 +86,10 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Light.ttf
+          weight: 300
     - family: KaushanScript
       fonts:
         - asset: assets/fonts/KaushanScript-Regular.ttf

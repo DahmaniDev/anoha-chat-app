@@ -18,7 +18,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   late String chatRoomId, messageId = "";
   late String myName, myProfilPic, myUserName, myEmail;
-  Stream messageStream= new StreamController().stream;
+  Stream messageStream = new StreamController().stream;
   TextEditingController messageController = TextEditingController();
 
   getMyInfoFromSharedPreferences() async {
@@ -125,7 +125,6 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-
   doThisOnLaunch() async {
     await getMyInfoFromSharedPreferences();
     messageStream = await DatabaseMethods().getChatRoomMessages(chatRoomId);
@@ -143,7 +142,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.name),
-        backgroundColor: AppTheme.isDarkMode ? AppTheme.appBarDarkModeColor :AppTheme.appBarLightModeColor,
+        backgroundColor: AppTheme.appBarLightModeColor,
       ),
       body: Container(
         child: Stack(
@@ -151,41 +150,63 @@ class _ChatScreenState extends State<ChatScreen> {
             Flexible(
                 fit: FlexFit.tight,
                 child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    decoration: const BoxDecoration(
+                  width: MediaQuery.of(context).size.width,
+                  decoration: BoxDecoration(
                     image: DecorationImage(
-                        image: AssetImage(
-                            "assets/chat-background-1.jpg"),
+                        image: AppTheme.isDarkMode
+                            ? AssetImage("assets/chat-background-2.jpg")
+                            : AssetImage("assets/chat-background-1.jpg"),
                         fit: BoxFit.cover,
                         colorFilter: ColorFilter.linearToSrgbGamma()),
                   ),
-                    child: chatMessages(),
+                  child: chatMessages(),
                 )),
             Container(
               alignment: Alignment.bottomCenter,
               padding: EdgeInsets.only(bottom: 10),
               child: Container(
+                height: 60,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(40),
+                  color: AppTheme.isDarkMode ? Colors.blueGrey.withOpacity(0.5) : Colors.white24.withOpacity(0.5),
+                ),
                 padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                color: Colors.white70,
+
                 child: Row(
                   children: [
-                    Expanded(
-                        child: TextField(
-                      decoration: const InputDecoration(
-                          enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.grey),
-                          ),
-                          focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.grey),
-                          ),
-                          border: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.grey),
-                          ),
-                          hintText: 'Ecrivez un message ici'),
-                      controller: messageController,
-                    )),
+                    SizedBox(width: 8,),
                     GestureDetector(
-                      child: Icon(Icons.send),
+                      child: Icon(Icons.image, color: AppTheme.appBarLightModeColor),
+                      onTap: () {
+
+                      },
+                    ),
+                    SizedBox(width: 8,),
+                    GestureDetector(
+                      child: Icon(Icons.pin_drop, color: AppTheme.appBarLightModeColor),
+                      onTap: () {
+
+                      },
+                    ),
+                    SizedBox(width: 8,),
+                    Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 2.0,bottom: 1.0),
+                          child: TextField(
+                            decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(40.0),
+                                ),
+                                filled: true,
+                                hintStyle: TextStyle(color: Colors.grey[800]),
+                                hintText: "Ecrivez un message ici ...",
+                                ),
+                      controller: messageController,
+                    ),
+                        )),
+                    SizedBox(width: 8,),
+                    GestureDetector(
+                      child: Icon(Icons.send, color: AppTheme.appBarLightModeColor,),
                       onTap: () {
                         addMessage(true);
                       },

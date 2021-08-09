@@ -25,6 +25,7 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
     QuerySnapshot querySnapshot = await DatabaseMethods().getUserInfo(username);
     name = "${querySnapshot.docs[0]["name"]}";
     profilePicUrl = "${querySnapshot.docs[0]["imgUrl"]}";
+    formattedTime = DateFormat.Hm().format(widget.lastTs.toDate());
     setState(() {});
   }
 
@@ -32,7 +33,6 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
   void initState() {
     getThisUserInfo();
     super.initState();
-    formattedTime = DateFormat.Hm().format(widget.lastTs.toDate());
   }
 
   @override
@@ -83,11 +83,11 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
                                 : AppTheme.buttonLightModeColor),
                       ),
                       SizedBox(height: 3),
-                      widget.lastMessage.length > 35
+                      widget.lastMessage.startsWith('https://firebasestor')
                           ? Row(
                               children: [
                                 Text(
-                                  widget.lastMessage.substring(0, 20) + ' ...',
+                                  'Photo',
                                   style: TextStyle(
                                       color: AppTheme.isDarkMode
                                           ? Colors.white60
@@ -105,27 +105,50 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
                                 )
                               ],
                             )
-                          : Row(
-                              children: [
-                                Text(
-                                  widget.lastMessage,
-                                  style: TextStyle(
-                                      color: AppTheme.isDarkMode
-                                          ? Colors.white60
-                                          : Colors.black),
-                                ),
-                                SizedBox(
-                                  width: 8,
-                                ),
-                                Text(
-                                  formattedTime,
-                                  style: TextStyle(
-                                      color: AppTheme.isDarkMode
-                                          ? Colors.white60
-                                          : Colors.black),
+                          : widget.lastMessage.length > 35
+                              ? Row(
+                                  children: [
+                                    Text(
+                                      widget.lastMessage.substring(0, 20) +
+                                          ' ...',
+                                      style: TextStyle(
+                                          color: AppTheme.isDarkMode
+                                              ? Colors.white60
+                                              : Colors.black),
+                                    ),
+                                    SizedBox(
+                                      width: 8,
+                                    ),
+                                    Text(
+                                      formattedTime,
+                                      style: TextStyle(
+                                          color: AppTheme.isDarkMode
+                                              ? Colors.white60
+                                              : Colors.black),
+                                    )
+                                  ],
                                 )
-                              ],
-                            )
+                              : Row(
+                                  children: [
+                                    Text(
+                                      widget.lastMessage,
+                                      style: TextStyle(
+                                          color: AppTheme.isDarkMode
+                                              ? Colors.white60
+                                              : Colors.black),
+                                    ),
+                                    SizedBox(
+                                      width: 8,
+                                    ),
+                                    Text(
+                                      formattedTime,
+                                      style: TextStyle(
+                                          color: AppTheme.isDarkMode
+                                              ? Colors.white60
+                                              : Colors.black),
+                                    )
+                                  ],
+                                )
                     ],
                   ),
                   SizedBox(width: 80),

@@ -5,7 +5,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import 'package:kelemni/helperfunctions/sharedpref_helper.dart';
-import 'package:kelemni/screens/profile.dart';
 import 'package:kelemni/screens/profilePage.dart';
 import 'package:kelemni/screens/signin.dart';
 import 'package:kelemni/services/auth.dart';
@@ -24,7 +23,7 @@ class _HomeState extends State<Home> {
   int _currentIndex = 0;
   late Stream usersStream;
   Stream chatRoomsStream = new StreamController().stream;
-  late String myName, myProfilePic, myUserName, myEmail;
+  String myName="", myProfilePic="", myUserName="", myEmail="";
   TextEditingController searchController = TextEditingController();
 
   @override
@@ -77,7 +76,7 @@ class _HomeState extends State<Home> {
 
   onSearchBtnClick() async {
     usersStream =
-        await DatabaseMethods().getUserByUserName(searchController.text);
+        await DatabaseMethods().getUserByUserName(searchController.text.toLowerCase());
 
     setState(() {});
   }
@@ -184,6 +183,16 @@ class _HomeState extends State<Home> {
                             : Container(),
                         Expanded(
                             child: TextField(
+                                onChanged: (value) {
+                                  if(value==""){
+                                    isSearching = false;
+                                  }else{
+                                    setState(() {
+                                      isSearching = true;
+                                    });
+                                    onSearchBtnClick();
+                                  }
+                                },
                                 style: TextStyle(
                                     color: AppTheme.isDarkMode
                                         ? AppTheme.textDarkModeColor
@@ -206,7 +215,6 @@ class _HomeState extends State<Home> {
                                         color: AppTheme.isDarkMode
                                             ? AppTheme.textDarkModeColor
                                             : AppTheme.textLightModeColor),
-                                    //fillColor: isDarkMode ? AppTheme.Theme.buttonDarkModeColor : AppTheme.Theme.buttonLightModeColor,
                                     hintText: 'Chercher un utilisateur'))),
                         IconButton(
                             onPressed: () {

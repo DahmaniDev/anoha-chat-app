@@ -1,9 +1,14 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:kelemni/helperfunctions/sharedpref_helper.dart';
 import 'package:kelemni/services/database.dart';
+import 'package:kelemni/widgets/imageContainer.dart';
 import 'package:random_string/random_string.dart';
 import 'package:kelemni/Global/Theme.dart' as AppTheme;
 
@@ -20,6 +25,8 @@ class _ChatScreenState extends State<ChatScreen> {
   late String myName, myProfilPic, myUserName, myEmail;
   Stream messageStream = new StreamController().stream;
   TextEditingController messageController = TextEditingController();
+
+  bool isLoading = false;
 
   getMyInfoFromSharedPreferences() async {
     myName = (await SharedPreferenceHelper().getDisplayName())!;
@@ -38,9 +45,18 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  addMessage(bool sendClicked) {
-    if (messageController.text != "") {
-      String message = messageController.text;
+  addMessage(bool sendClicked, String message, int typeMsg) async {
+    if (message != "") {
+      var listOfFilters = await DatabaseMethods().getListOfXwords();
+      for (var item in listOfFilters) {
+        if (message.contains(item)) {
+          var ch = "";
+          for (int i = 0; i < item.length; i++) {
+            ch += '*';
+          }
+          message = message.replaceAll(item, ch);
+        }
+      }
 
       var lastMessageTs = DateTime.now();
 
@@ -48,7 +64,8 @@ class _ChatScreenState extends State<ChatScreen> {
         "message": message,
         "sendBy": myUserName,
         "ts": lastMessageTs,
-        "imgUrl": myProfilPic
+        "imgUrl": myProfilPic,
+        "type":typeMsg
       };
 
       //messageId
@@ -74,6 +91,42 @@ class _ChatScreenState extends State<ChatScreen> {
           messageId = "";
         }
       });
+    }
+    else {
+      Fluttertoast.showToast(
+          msg: 'Nothing to send', backgroundColor: Colors.red, textColor: Colors.white);
+    }
+  }
+
+  Future getImage() async {
+    ImagePicker imagePicker = ImagePicker();
+    PickedFile? pickedFile = await imagePicker.getImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        isLoading = true;
+      });
+      uploadFile(pickedFile);
+    }
+  }
+
+  Future uploadFile(PickedFile file) async {
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString() + ".jpeg";
+    try {
+      Reference reference = FirebaseStorage.instance.ref().child(fileName);
+      final metadata = SettableMetadata(
+          contentType: 'image/jpeg', customMetadata: {'picked-file-path': file.path});
+      TaskSnapshot snapshot = await reference.putFile(File(file.path), metadata);
+
+      String imageUrl = await snapshot.ref.getDownloadURL();
+      setState(() {
+        isLoading = false;
+        addMessage(true, imageUrl, 1);
+      });
+    } on Exception {
+      setState(() {
+        isLoading = false;
+      });
+      Fluttertoast.showToast(msg: "Error! Try again!");
     }
   }
 
@@ -117,8 +170,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 reverse: true,
                 itemBuilder: (context, index) {
                   DocumentSnapshot ds = snapshot.data.docs[index];
-                  return chatMessageTile(
-                      ds["message"], myUserName == ds["sendBy"]);
+                  return ds["type"]==0 ? chatMessageTile(
+                      ds["message"], myUserName == ds["sendBy"]) : imageContainer(context,ds["message"]);
                 })
             : Center(child: CircularProgressIndicator());
       },
@@ -143,6 +196,21 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         title: Text(widget.name),
         backgroundColor: AppTheme.appBarLightModeColor,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: IconButton(
+              icon: AppTheme.isDarkMode
+                  ? Icon(Icons.wb_sunny)
+                  : Icon(Icons.nightlight_round),
+              onPressed: () {
+                setState(() {
+                  AppTheme.isDarkMode = !AppTheme.isDarkMode;
+                });
+              },
+            ),
+          ),
+        ],
       ),
       body: Container(
         child: Stack(
@@ -178,7 +246,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     GestureDetector(
                       child: Icon(Icons.image, color: AppTheme.appBarLightModeColor),
                       onTap: () {
-
+                        getImage();
                       },
                     ),
                     SizedBox(width: 8,),
@@ -208,7 +276,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     GestureDetector(
                       child: Icon(Icons.send, color: AppTheme.appBarLightModeColor,),
                       onTap: () {
-                        addMessage(true);
+                        addMessage(true,messageController.text,0);
                       },
                     )
                   ],

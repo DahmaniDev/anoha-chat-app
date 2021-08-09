@@ -2,8 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:kelemni/helperfunctions/sharedpref_helper.dart';
 
 class DatabaseMethods {
-  Future addUserInfoToDB(
-      String userId, Map<String, dynamic> userInfoMap) async {
+  Future addUserInfoToDB(String userId, Map<String, dynamic> userInfoMap) async {
     return FirebaseFirestore.instance
         .collection("users")
         .doc(userId)
@@ -13,12 +12,12 @@ class DatabaseMethods {
   Future<Stream<QuerySnapshot>> getUserByUserName(String username) async {
     return FirebaseFirestore.instance
         .collection("users")
-        .where("username", isEqualTo: username)
+        .where("username", isGreaterThanOrEqualTo: username)
+        .where("username", isLessThanOrEqualTo: username + '~')
         .snapshots();
   }
 
-  Future addMessage(
-      String chatRoomId, String messageId, Map<String,dynamic> messageInfoMap) async {
+  Future addMessage(String chatRoomId, String messageId, Map<String,dynamic> messageInfoMap) async {
     return FirebaseFirestore.instance
         .collection("chatrooms")
         .doc(chatRoomId)
@@ -76,4 +75,12 @@ class DatabaseMethods {
         .where("username", isEqualTo: username)
         .get();
   }
+
+  Future<List<String>> getListOfXwords() async {
+    var items = await FirebaseFirestore.instance.collection("filtres").get();
+    List<String> list =
+    items.docs.map((doc) => doc.data()['msgFiltre'].toString()).toList();
+    return list;
+  }
+
 }

@@ -47,22 +47,19 @@ class ProfileScreen extends StatelessWidget {
                   )),
             ),
             SizedBox(height: 20),
-            Text('@'+username, style: TextStyle(fontFamily: 'Poppins', fontSize: 17),),
+            Text('@'+username, style: TextStyle(fontFamily: 'Poppins', fontSize: 17, color: AppTheme.isDarkMode ? Colors.white : Colors.black),),
             SizedBox(height: 80,),
             Card(
-              shadowColor: Colors.blue,
+              shadowColor: AppTheme.isDarkMode ? Colors.blue : AppTheme.appBarLightModeColor,
               elevation: 8,
               clipBehavior: Clip.antiAlias,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24),
               ),
               child: Container(
+                width: MediaQuery.of(context).size.width/1.5,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xff555555), AppTheme.appBarLightModeColor],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  color: AppTheme.isDarkMode ? AppTheme.appBarDarkModeColor.withOpacity(0.9) :AppTheme.buttonLightModeColor.withOpacity(0.8),
                 ),
                 padding: EdgeInsets.all(16),
                 child: Column(
@@ -79,9 +76,9 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 40),
                     Text(
-                      'Email : '+ email,
+                      email,
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 13,
                         color: Colors.white,
                       ),
                     ),
@@ -89,8 +86,9 @@ class ProfileScreen extends StatelessWidget {
                   ],
                 ),
               ),
-            )
-          ],
+            ),
+            const SizedBox(height: 20),
+            ],
         ),
       ],
     );

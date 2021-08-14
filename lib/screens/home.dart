@@ -67,7 +67,7 @@ class _HomeState extends State<Home> {
             shrinkWrap: true,
             itemBuilder: (context, index) {
               DocumentSnapshot ds = snapshot.data.docs[index];
-              return ChatRoomListTile(ds["lastMessage"], ds.id, myUserName,ds["lastMessageSendTs"] as Timestamp);
+              return ChatRoomListTile(ds["lastMessage"], ds.id, myUserName,ds["lastMessageSendTs"]);
             })
             : Center(child: CircularProgressIndicator());
       },

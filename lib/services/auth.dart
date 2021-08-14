@@ -43,6 +43,7 @@ class AuthMethods{
       SharedPreferenceHelper().saveDisplayName(userDetails.displayName!);
       SharedPreferenceHelper().saveUserProfileUrl(userDetails.photoURL!);
 
+
       Map<String, dynamic> userInfoMap = {
         "email": userDetails.email!,
         "username": userDetails.email!.replaceAll("@gmail.com", ""),
@@ -58,7 +59,7 @@ class AuthMethods{
 
   Future signOut() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.clear();
+    await prefs.clear();
     await auth.signOut();
   }
 }

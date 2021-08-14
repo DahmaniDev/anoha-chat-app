@@ -59,4 +59,15 @@ class SharedPreferenceHelper {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString(userProfilePicKey);
   }
+
+  Future<bool> logOut() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    await prefs.remove(userNameKey);
+    await prefs.remove(userEmailKey);
+    await prefs.remove(userIdKey);
+    await prefs.remove(displayNameKey);
+    await prefs.remove(userProfilePicKey);
+    return true;
+  }
 }

@@ -98,7 +98,7 @@ class ProfileScreen extends StatelessWidget {
 class HeaderCurvedContainer extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    Paint paint = Paint()..color = Color(0xff555555);
+    Paint paint = Paint()..color = AppTheme.appBarLightModeColor;
     Path path = Path()
       ..relativeLineTo(0, 150)
       ..quadraticBezierTo(size.width / 2, 225, size.width, 150)

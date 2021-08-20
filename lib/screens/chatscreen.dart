@@ -7,14 +7,17 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kelemni/helperfunctions/sharedpref_helper.dart';
+import 'package:kelemni/screens/profilePage.dart';
 import 'package:kelemni/services/database.dart';
+import 'package:kelemni/widgets/custom_dialog_box.dart';
 import 'package:kelemni/widgets/imageContainer.dart';
 import 'package:random_string/random_string.dart';
 import 'package:kelemni/Global/Theme.dart' as AppTheme;
 
 class ChatScreen extends StatefulWidget {
-  final String chatWithUsername, name;
-  ChatScreen(this.chatWithUsername, this.name);
+  //chatWithUsername est le username de l'autre user et name est le displayName de l'autre user
+  final String chatWithUsername, name, imgUrl, email;
+  ChatScreen(this.chatWithUsername, this.name, this.imgUrl, this.email);
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
@@ -65,7 +68,7 @@ class _ChatScreenState extends State<ChatScreen> {
         "sendBy": myUserName,
         "ts": lastMessageTs,
         "imgUrl": myProfilPic,
-        "type":typeMsg
+        "type": typeMsg
       };
 
       //messageId
@@ -91,16 +94,18 @@ class _ChatScreenState extends State<ChatScreen> {
           messageId = "";
         }
       });
-    }
-    else {
+    } else {
       Fluttertoast.showToast(
-          msg: 'Nothing to send', backgroundColor: Colors.red, textColor: Colors.white);
+          msg: 'Nothing to send',
+          backgroundColor: Colors.red,
+          textColor: Colors.white);
     }
   }
 
   Future getImage() async {
     ImagePicker imagePicker = ImagePicker();
-    PickedFile? pickedFile = await imagePicker.getImage(source: ImageSource.gallery);
+    PickedFile? pickedFile =
+        await imagePicker.getImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         isLoading = true;
@@ -110,12 +115,15 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future uploadFile(PickedFile file) async {
-    String fileName = DateTime.now().millisecondsSinceEpoch.toString() + ".jpeg";
+    String fileName =
+        DateTime.now().millisecondsSinceEpoch.toString() + ".jpeg";
     try {
       Reference reference = FirebaseStorage.instance.ref().child(fileName);
       final metadata = SettableMetadata(
-          contentType: 'image/jpeg', customMetadata: {'picked-file-path': file.path});
-      TaskSnapshot snapshot = await reference.putFile(File(file.path), metadata);
+          contentType: 'image/jpeg',
+          customMetadata: {'picked-file-path': file.path});
+      TaskSnapshot snapshot =
+          await reference.putFile(File(file.path), metadata);
 
       String imageUrl = await snapshot.ref.getDownloadURL();
       setState(() {
@@ -152,7 +160,7 @@ class _ChatScreenState extends State<ChatScreen> {
               padding: EdgeInsets.all(16),
               child: Text(
                 message,
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.white, fontFamily: 'KleeOne'),
               )),
         ),
       ],
@@ -170,8 +178,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 reverse: true,
                 itemBuilder: (context, index) {
                   DocumentSnapshot ds = snapshot.data.docs[index];
-                  return ds["type"]==0 ? chatMessageTile(
-                      ds["message"], myUserName == ds["sendBy"]) : imageContainer(context,ds["message"]);
+                  return ds["type"] == 0
+                      ? chatMessageTile(
+                          ds["message"], myUserName == ds["sendBy"])
+                      : imageContainer(context, ds["message"]);
                 })
             : Center(child: CircularProgressIndicator());
       },
@@ -200,35 +210,32 @@ class _ChatScreenState extends State<ChatScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: IconButton(
-              icon: AppTheme.isDarkMode
-                  ? Icon(Icons.wb_sunny)
-                  : Icon(Icons.nightlight_round),
-              onPressed: () {
-                setState(() {
-                  AppTheme.isDarkMode = !AppTheme.isDarkMode;
-                });
+              icon: Icon(Icons.person_pin),
+              //Consulter profil utilisateur
+              onPressed: (){
+                showDialog(context: context,
+                    builder: (BuildContext context){
+                      return CustomDialogBox(
+                        title: widget.name,
+                        descriptions: '''@${widget.chatWithUsername}
+                                      ${widget.email}
+                                      ''',
+                        text: "OK", img: widget.imgUrl,
+                      );
+                    }
+                );
               },
             ),
           ),
         ],
       ),
       body: Container(
+        color: AppTheme.isDarkMode
+            ? Colors.blueGrey.withOpacity(0.5)
+            : Colors.white24.withOpacity(0.5),
         child: Stack(
           children: [
-            Flexible(
-                fit: FlexFit.tight,
-                child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                        image: AppTheme.isDarkMode
-                            ? AssetImage("assets/chat-background-2.jpg")
-                            : AssetImage("assets/chat-background-1.jpg"),
-                        fit: BoxFit.cover,
-                        colorFilter: ColorFilter.linearToSrgbGamma()),
-                  ),
-                  child: chatMessages(),
-                )),
+            chatMessages(),
             Container(
               alignment: Alignment.bottomCenter,
               padding: EdgeInsets.only(bottom: 10),
@@ -236,47 +243,59 @@ class _ChatScreenState extends State<ChatScreen> {
                 height: 60,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(40),
-                  color: AppTheme.isDarkMode ? Colors.blueGrey.withOpacity(0.5) : Colors.white24.withOpacity(0.5),
+                  color: AppTheme.isDarkMode
+                      ? Colors.blueGrey.withOpacity(0.5)
+                      : Colors.white24.withOpacity(0.5),
                 ),
                 padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-
                 child: Row(
                   children: [
-                    SizedBox(width: 8,),
+                    SizedBox(
+                      width: 8,
+                    ),
                     GestureDetector(
-                      child: Icon(Icons.image, color: AppTheme.appBarLightModeColor),
+                      child: Icon(Icons.image,
+                          color: AppTheme.appBarLightModeColor),
                       onTap: () {
                         getImage();
                       },
                     ),
-                    SizedBox(width: 8,),
-                    GestureDetector(
-                      child: Icon(Icons.pin_drop, color: AppTheme.appBarLightModeColor),
-                      onTap: () {
-
-                      },
+                    SizedBox(
+                      width: 8,
                     ),
-                    SizedBox(width: 8,),
+                    // GestureDetector(
+                    //   child: Icon(Icons.pin_drop,
+                    //       color: AppTheme.appBarLightModeColor),
+                    //   onTap: () {},
+                    // ),
+                    SizedBox(
+                      width: 8,
+                    ),
                     Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.only(top: 2.0,bottom: 1.0),
-                          child: TextField(
-                            decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(40.0),
-                                ),
-                                filled: true,
-                                hintStyle: TextStyle(color: Colors.grey[800]),
-                                hintText: "Ecrivez un message ici ...",
-                                ),
-                      controller: messageController,
+                      padding: const EdgeInsets.only(top: 2.0, bottom: 1.0),
+                      child: TextField(
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(40.0),
+                          ),
+                          filled: true,
+                          hintStyle: TextStyle(color: Colors.grey[800]),
+                          hintText: "Ecrivez un message ici ...",
+                        ),
+                        controller: messageController,
+                      ),
+                    )),
+                    SizedBox(
+                      width: 8,
                     ),
-                        )),
-                    SizedBox(width: 8,),
                     GestureDetector(
-                      child: Icon(Icons.send, color: AppTheme.appBarLightModeColor,),
+                      child: Icon(
+                        Icons.send,
+                        color: AppTheme.appBarLightModeColor,
+                      ),
                       onTap: () {
-                        addMessage(true,messageController.text,0);
+                        addMessage(true, messageController.text, 0);
                       },
                     )
                   ],

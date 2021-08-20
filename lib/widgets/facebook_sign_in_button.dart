@@ -32,6 +32,13 @@ class _FacebookSignInButtonState extends State<FacebookSignInButton> {
             _isSigningIn = true;
           });
 
+          showDialog(
+              context: context,
+              builder: (_) => AlertDialog(
+                title: Text('Facebook Authentication'),
+                content: Text('We\'re working on this feature'),
+              )
+          );
 
 
           setState(() {

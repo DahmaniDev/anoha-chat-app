@@ -5,9 +5,12 @@ import 'package:kelemni/screens/home.dart';
 import 'package:kelemni/screens/signin.dart';
 import 'package:kelemni/services/auth.dart';
 
+
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
   runApp(MyApp());
 }
 
@@ -18,6 +21,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

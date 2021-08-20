@@ -34,21 +34,31 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
+
+  #Firebase packages
   firebase_auth: ^3.0.1
   firebase_core: ^1.4.0
-  google_sign_in: ^5.0.5
-  shared_preferences: ^2.0.6
-  random_string: ^2.3.1
+  firebase_storage: ^10.0.1
   cloud_firestore: ^2.4.0
-  shimmer: ^1.1.0
-  flutter_slidable: ^0.5.7
+  google_sign_in: ^5.0.5
+
+  #Shared Preferences
+  shared_preferences: ^2.0.6
+
+  #Other tools packages
+  random_string: ^2.3.1
   get: ^4.3.4
   intl: ^0.17.0
-  image_picker: ^0.8.3+1
-  firebase_storage: ^10.0.1
+
+  #UX packages
   fluttertoast: ^8.0.8
   flutter_spinkit: ^5.0.0
+  shimmer: ^1.1.0
+  flutter_slidable: ^0.5.7
+
+  #Image packages
   photo_view: ^0.12.0
+  image_picker: ^0.8.3+1
 
 
 
@@ -93,6 +103,9 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
+    - family: KleeOne
+      fonts:
+        - asset: assets/fonts/KleeOne-Regular.ttf
     - family: Poppins
       fonts:
         - asset: assets/fonts/Poppins-Light.ttf

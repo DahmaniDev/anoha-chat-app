@@ -9,7 +9,6 @@ import 'package:kelemni/Global/Theme.dart' as AppTheme;
 Widget searchListUserTile({String? profileUrl, name, username, email, chatRoomId, myUserName, required BuildContext context}) {
   return GestureDetector(
     onTap: () {
-      //var chatRoomId = Home().getChatRoomIdByUserName(myUserName, username);
       Map<String, dynamic> chatRoomInfoMap = {
         "users": [myUserName, username]
       };
@@ -17,7 +16,7 @@ Widget searchListUserTile({String? profileUrl, name, username, email, chatRoomId
       Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => ChatScreen(username, name)));
+              builder: (context) => ChatScreen(username, name, profileUrl!, email)));
     },
     child: Container(
       margin: EdgeInsets.symmetric(vertical: 8, horizontal: 15),

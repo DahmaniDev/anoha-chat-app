@@ -58,8 +58,10 @@ class AuthMethods{
   }
 
   Future signOut() async {
+    final GoogleSignIn _googleSignIn = GoogleSignIn();
+    await auth.signOut();
+    await _googleSignIn.signOut();
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.clear();
-    await auth.signOut();
   }
 }

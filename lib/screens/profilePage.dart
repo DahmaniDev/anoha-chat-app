@@ -57,7 +57,7 @@ class ProfileScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(24),
               ),
               child: Container(
-                width: MediaQuery.of(context).size.width/1.5,
+                width: MediaQuery.of(context).size.width/1.2,
                 decoration: BoxDecoration(
                   color: AppTheme.isDarkMode ? AppTheme.appBarDarkModeColor.withOpacity(0.9) :AppTheme.buttonLightModeColor.withOpacity(0.8),
                 ),
@@ -67,7 +67,7 @@ class ProfileScreen extends StatelessWidget {
                   children: [
                     const SizedBox(height: 20),
                     Text(
-                      'Nom : '+ displayName,
+                      displayName,
                       style: TextStyle(
                         fontSize: 20,
                         color: Colors.white,

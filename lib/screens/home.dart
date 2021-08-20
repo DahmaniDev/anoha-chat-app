@@ -33,6 +33,8 @@ class _HomeState extends State<Home> {
     onScreenLoaded();
   }
 
+
+
   onScreenLoaded() async {
     await getMyInfoFromSharedPreference();
     chatRoomsStream = await DatabaseMethods().getChatRooms();

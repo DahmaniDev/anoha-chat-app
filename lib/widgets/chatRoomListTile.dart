@@ -16,7 +16,7 @@ class ChatRoomListTile extends StatefulWidget {
 }
 
 class _ChatRoomListTileState extends State<ChatRoomListTile> {
-  String profilePicUrl = "", name = "", username = "";
+  String profilePicUrl = "", name = "", username = "", email="";
   String formattedTime = "";
 
   getThisUserInfo() async {
@@ -25,6 +25,7 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
     QuerySnapshot querySnapshot = await DatabaseMethods().getUserInfo(username);
     name = "${querySnapshot.docs[0]["name"]}";
     profilePicUrl = "${querySnapshot.docs[0]["imgUrl"]}";
+    email = "${querySnapshot.docs[0]["email"]}";
     formattedTime = DateFormat.Hm().format(widget.lastTs.toDate());
     setState(() {});
   }
@@ -42,7 +43,7 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => ChatScreen(username, name)));
+                builder: (context) => ChatScreen(username, name, profilePicUrl, email)));
       },
       child: Container(
         margin: EdgeInsets.symmetric(vertical: 4),

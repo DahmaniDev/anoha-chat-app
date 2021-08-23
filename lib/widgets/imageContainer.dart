@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kelemni/widgets/fullPhoto.dart';
 import 'package:kelemni/widgets/loading.dart';
 
-
+//Widget d'un message de type image
 
 Widget imageContainer(BuildContext ctx, String imgUrl) {
   return GestureDetector(

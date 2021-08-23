@@ -60,6 +60,10 @@ dependencies:
   photo_view: ^0.12.0
   image_picker: ^0.8.3+1
 
+  #Notifications packages
+  firebase_messaging: ^10.0.5
+  flutter_local_notifications: ^8.1.1+1
+
 
 
 dev_dependencies:

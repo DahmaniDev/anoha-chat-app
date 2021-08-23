@@ -7,6 +7,8 @@ class FacebookSignInButton extends StatefulWidget {
   _FacebookSignInButtonState createState() => _FacebookSignInButtonState();
 }
 
+//Widget du button connecter avec Facebook
+
 class _FacebookSignInButtonState extends State<FacebookSignInButton> {
   bool _isSigningIn = false;
 

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:kelemni/Global/constants.dart';
 import 'package:kelemni/Global/Theme.dart' as AppTheme;
 
+//Widget de consultation de profil d'un autre utilisateur
+
 class CustomDialogBox extends StatefulWidget {
   final String title, descriptions, text;
   final String img;

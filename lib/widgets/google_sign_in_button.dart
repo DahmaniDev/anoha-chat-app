@@ -7,6 +7,8 @@ class GoogleSignInButton extends StatefulWidget {
   _GoogleSignInButtonState createState() => _GoogleSignInButtonState();
 }
 
+//Widget du button connecter avec Google
+
 class _GoogleSignInButtonState extends State<GoogleSignInButton> {
   bool _isSigningIn = false;
 

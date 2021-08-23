@@ -5,6 +5,7 @@ import 'package:kelemni/screens/chatscreen.dart';
 import 'package:kelemni/services/database.dart';
 import 'package:kelemni/Global/Theme.dart' as AppTheme;
 
+//Widget d'un seul utilisateur cherché (Image / Nom / Email)
 
 Widget searchListUserTile({String? profileUrl, name, username, email, chatRoomId, myUserName, required BuildContext context}) {
   return GestureDetector(

@@ -9,6 +9,8 @@ class FullPhoto extends StatefulWidget {
   @override State createState() => new _FullPhoto();
 }
 
+//Interface avec l'image en plein écran (lorsque l'utilisateur clique sur un message de type image
+
 class _FullPhoto extends State<FullPhoto> {
   @override
   Widget build(BuildContext context) {

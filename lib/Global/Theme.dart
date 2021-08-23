@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 
-
+  //Définition des paramètres (Couleurs) de chaque thème (Dark/Light)
   bool isDarkMode = false;
   Color appBarLightModeColor = Color(0xFFe32b4a);
   Color appBarDarkModeColor = Color(0xFF292626);

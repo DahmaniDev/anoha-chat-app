@@ -10,11 +10,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthMethods{
   final FirebaseAuth auth = FirebaseAuth.instance;
-
+  //Récupération de utilisateur courant d'après Firebase
   getCurrentUser() async{
     return await auth.currentUser;
   }
 
+  //Méthode de connexion avec compte Google
   signInWithGoogle(BuildContext ctx) async{
     final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
     final GoogleSignIn _googleSignIn = GoogleSignIn();
@@ -51,12 +52,14 @@ class AuthMethods{
         "imgUrl": userDetails.photoURL!
       };
 
+      //Enregistrer les infos d'utilisateur dans la BD et la redirection à l'interface accueil
       DatabaseMethods().addUserInfoToDB(userDetails.uid, userInfoMap).then((value) {
         Navigator.pushReplacement(ctx, MaterialPageRoute(builder: (context) => Home()));
       });
     }
   }
 
+  //Méthode de déconnexion
   Future signOut() async {
     final GoogleSignIn _googleSignIn = GoogleSignIn();
     await auth.signOut();

@@ -15,6 +15,8 @@ class ChatRoomListTile extends StatefulWidget {
   _ChatRoomListTileState createState() => _ChatRoomListTileState();
 }
 
+//Widget d'un seul Chatroom (Image / Nom / Dernier Message / Timestamp )
+
 class _ChatRoomListTileState extends State<ChatRoomListTile> {
   String profilePicUrl = "", name = "", username = "", email="";
   String formattedTime = "";

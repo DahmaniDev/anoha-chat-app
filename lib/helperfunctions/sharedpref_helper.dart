@@ -1,6 +1,8 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+//Class responsable à l'affectation et la récuperation du compte connecté à l'appreil utilisée
 class SharedPreferenceHelper {
+  //Les données à enregistrer / récupérer
   static String userIdKey = "USERKEY";
   static String userNameKey = "USERNAMEKEY";
   static String displayNameKey = "USERDISPLAYNAMEKEY";

@@ -1,4 +1,3 @@
-
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -23,7 +22,7 @@ class _HomeState extends State<Home> {
   int _currentIndex = 0;
   late Stream usersStream;
   Stream chatRoomsStream = new StreamController().stream;
-  String myName="", myProfilePic="", myUserName="", myEmail="";
+  String myName = "", myProfilePic = "", myUserName = "", myEmail = "";
   TextEditingController searchController = TextEditingController();
 
   @override
@@ -33,16 +32,14 @@ class _HomeState extends State<Home> {
     onScreenLoaded();
   }
 
-
-
+  //Récupération de données d'utilisateur connecté et récupération des chatrooms
   onScreenLoaded() async {
     await getMyInfoFromSharedPreference();
     chatRoomsStream = await DatabaseMethods().getChatRooms();
-    setState(() {
-
-    });
+    setState(() {});
   }
 
+  //Récupération de données d'utilisateur connecté
   getMyInfoFromSharedPreference() async {
     myName = (await SharedPreferenceHelper().getDisplayName())!;
     myProfilePic = (await SharedPreferenceHelper().getUserProfileUrl())!;
@@ -51,6 +48,7 @@ class _HomeState extends State<Home> {
     setState(() {});
   }
 
+  //L'identifiant de la chatroom entre user A et user B est enregistrée comme suit : A_B
   getChatRoomIdByUserName(String a, String b) {
     if (a.substring(0, 1).codeUnitAt(0) > b.substring(0, 1).codeUnitAt(0)) {
       return "$b\_$a";
@@ -58,31 +56,34 @@ class _HomeState extends State<Home> {
       return "$a\_$b";
     }
   }
-
+  //Widget de List (Stream) des tous les chatrooms de l'utilisateur connecté
   Widget chatRoomsList() {
     return StreamBuilder<dynamic>(
       stream: chatRoomsStream,
       builder: (context, snapshot) {
         return snapshot.hasData
             ? ListView.builder(
-            itemCount: snapshot.data.docs.length,
-            shrinkWrap: true,
-            itemBuilder: (context, index) {
-              DocumentSnapshot ds = snapshot.data.docs[index];
-              return ChatRoomListTile(ds["lastMessage"], ds.id, myUserName,ds["lastMessageSendTs"]);
-            })
+                itemCount: snapshot.data.docs.length,
+                shrinkWrap: true,
+                itemBuilder: (context, index) {
+                  DocumentSnapshot ds = snapshot.data.docs[index];
+                  return ChatRoomListTile(ds["lastMessage"], ds.id, myUserName,
+                      ds["lastMessageSendTs"]);
+                })
             : Center(child: CircularProgressIndicator());
       },
     );
   }
 
+  //Méthode à éxecuter lorsque l'utilisateur clique sur le boutton "chercher"
   onSearchBtnClick() async {
-    usersStream =
-        await DatabaseMethods().getUserByUserName(searchController.text.toLowerCase());
+    //Récupérer les utilisateurs qui leurs usernames correspond à le texte écrit à la barre de recherche
+    usersStream = await DatabaseMethods()
+        .getUserByUserName(searchController.text.toLowerCase());
 
     setState(() {});
   }
-
+  //Widget de List (Stream) des utilisateurs récupérés par la méthode de recherche
   Widget searchUsersList() {
     return StreamBuilder<dynamic>(
       stream: usersStream,
@@ -98,10 +99,10 @@ class _HomeState extends State<Home> {
                       name: ds["name"],
                       email: ds["email"],
                       username: ds["username"],
-                      chatRoomId: getChatRoomIdByUserName(myUserName, ds["username"]),
+                      chatRoomId:
+                          getChatRoomIdByUserName(myUserName, ds["username"]),
                       myUserName: myUserName,
-                      context: context
-                  );
+                      context: context);
                 },
               )
             : Center(
@@ -113,7 +114,6 @@ class _HomeState extends State<Home> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -122,12 +122,10 @@ class _HomeState extends State<Home> {
           'Kelemni',
           style: TextStyle(fontFamily: 'KaushanScript', fontSize: 28),
         ),
-        // backgroundColor: AppTheme.isDarkMode
-        //     ? AppTheme.appBarDarkModeColor
-        //     : AppTheme.appBarLightModeColor,
         backgroundColor: AppTheme.appBarLightModeColor,
         elevation: 8.0,
         actions: [
+          //Button de changement de Mode (DarkMode / LightMode)
           IconButton(
             icon: AppTheme.isDarkMode
                 ? Icon(Icons.wb_sunny)
@@ -138,6 +136,7 @@ class _HomeState extends State<Home> {
               });
             },
           ),
+          //Button de Logout
           InkWell(
             onTap: () {
               AuthMethods().signOut().then((s) {
@@ -157,6 +156,7 @@ class _HomeState extends State<Home> {
             ? AppTheme.backgroundDarkModeColor
             : AppTheme.backgroundLightModeColor,
         height: MediaQuery.of(context).size.height,
+        //si currentIndex == 0 alors on affiche l'interface de recherche
         child: _currentIndex == 0
             ? Column(
                 children: [
@@ -186,9 +186,9 @@ class _HomeState extends State<Home> {
                         Expanded(
                             child: TextField(
                                 onChanged: (value) {
-                                  if(value==""){
+                                  if (value == "") {
                                     isSearching = false;
-                                  }else{
+                                  } else {
                                     setState(() {
                                       isSearching = true;
                                     });
@@ -236,10 +236,27 @@ class _HomeState extends State<Home> {
                       ],
                     ),
                   ),
-                  isSearching ? searchUsersList() : Container()
+                  isSearching
+                      ? searchUsersList()
+                      : Center(
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(height: 50,),
+                              Center(
+                                child: Image.asset(
+                                  'assets/search.png',
+                                  height: 160,
+                                ),
+                              ),
+                            ],
+                          ),
+                      ),
                   //
                 ],
               )
+        //si currentIndex == 1 alors on affiche l'interface de chatrooms
             : _currentIndex == 1
                 ? Padding(
                     padding: EdgeInsets.only(top: 20.0),
@@ -248,6 +265,7 @@ class _HomeState extends State<Home> {
                       child: chatRoomsList(),
                     ),
                   )
+        //si currentIndex == 2 alors on affiche l'interface de profil
                 : _currentIndex == 2
                     ? ProfileScreen(myUserName, myName, myProfilePic, myEmail)
                     : Container(),
@@ -261,17 +279,26 @@ class _HomeState extends State<Home> {
           BottomNavigationBarItem(
               icon: Icon(Icons.search, color: AppTheme.appBarLightModeColor),
               //label: 'Recherche',
-              title: Text('Recherche', style: TextStyle(color: AppTheme.appBarLightModeColor)),
-              backgroundColor: AppTheme.isDarkMode ? Color(0xFF292828) : Colors.white),
+              title: Text('Recherche',
+                  style: TextStyle(color: AppTheme.appBarLightModeColor)),
+              backgroundColor:
+                  AppTheme.isDarkMode ? Color(0xFF292828) : Colors.white),
           BottomNavigationBarItem(
               icon: Icon(Icons.chat, color: AppTheme.appBarLightModeColor),
               //label: 'Chat',
-              title: Text('Chat', style: TextStyle(color: AppTheme.appBarLightModeColor)),
-              backgroundColor: AppTheme.isDarkMode ? Color(0xFF292828) : Colors.white),
+              title: Text('Chat',
+                  style: TextStyle(color: AppTheme.appBarLightModeColor)),
+              backgroundColor:
+                  AppTheme.isDarkMode ? Color(0xFF292828) : Colors.white),
           BottomNavigationBarItem(
-              icon: Icon(Icons.person, color: AppTheme.appBarLightModeColor,),
-              title: Text('Profil', style: TextStyle(color: AppTheme.appBarLightModeColor)),
-              backgroundColor: AppTheme.isDarkMode ? Color(0xFF292828) : Colors.white),
+              icon: Icon(
+                Icons.person,
+                color: AppTheme.appBarLightModeColor,
+              ),
+              title: Text('Profil',
+                  style: TextStyle(color: AppTheme.appBarLightModeColor)),
+              backgroundColor:
+                  AppTheme.isDarkMode ? Color(0xFF292828) : Colors.white),
         ],
         onTap: (index) {
           setState(() {
@@ -282,4 +309,3 @@ class _HomeState extends State<Home> {
     );
   }
 }
-

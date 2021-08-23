@@ -1,22 +1,23 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kelemni/helperfunctions/sharedpref_helper.dart';
-import 'package:kelemni/screens/profilePage.dart';
 import 'package:kelemni/services/database.dart';
 import 'package:kelemni/widgets/custom_dialog_box.dart';
 import 'package:kelemni/widgets/imageContainer.dart';
-import 'package:random_string/random_string.dart';
 import 'package:kelemni/Global/Theme.dart' as AppTheme;
+
+import '../main.dart';
 
 class ChatScreen extends StatefulWidget {
   //chatWithUsername est le username de l'autre user et name est le displayName de l'autre user
   final String chatWithUsername, name, imgUrl, email;
+  //Constructeur
   ChatScreen(this.chatWithUsername, this.name, this.imgUrl, this.email);
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -24,22 +25,25 @@ class ChatScreen extends StatefulWidget {
 
 //
 class _ChatScreenState extends State<ChatScreen> {
-  late String chatRoomId, messageId = "";
+  late String chatRoomId;
   late String myName, myProfilPic, myUserName, myEmail;
   Stream messageStream = new StreamController().stream;
   TextEditingController messageController = TextEditingController();
 
   bool isLoading = false;
 
+  //Récuperer mes données depuis la classe SharedPreferences (Appareil)
   getMyInfoFromSharedPreferences() async {
     myName = (await SharedPreferenceHelper().getDisplayName())!;
     myProfilPic = (await SharedPreferenceHelper().getUserProfileUrl())!;
     myUserName = (await SharedPreferenceHelper().getUserName())!;
     myEmail = (await SharedPreferenceHelper().getUserEmail())!;
 
+    //Récupération de l'identifiant de chatroom courante
     chatRoomId = getChatRoomIdByUserName(widget.chatWithUsername, myUserName);
   }
 
+  //L'identifiant de la chatroom entre user A et user B est enregistrée comme suit : A_B
   getChatRoomIdByUserName(String a, String b) {
     if (a.substring(0, 1).codeUnitAt(0) > b.substring(0, 1).codeUnitAt(0)) {
       return "$b\_$a";
@@ -48,8 +52,24 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  //Méthode pour afficher les notifications
+  void showNotification() {
+    flutterLocalNotificationsPlugin.show(
+        0,
+        "Avertissement!",
+        "Message filtré ! N'est pas accepté par notre part",
+        NotificationDetails(
+            android: AndroidNotificationDetails(channel.id, channel.name, channel.description,
+                importance: Importance.high,
+                color: Colors.blue,
+                playSound: true,
+                icon: '@mipmap/ic_launcher')));
+  }
+
+  //Méthode d'ajout de message(lorsque l'user clique ser "send"
   addMessage(bool sendClicked, String message, int typeMsg) async {
     if (message != "") {
+      //Tester si le message contient une mot à filtrer
       var listOfFilters = await DatabaseMethods().getListOfXwords();
       for (var item in listOfFilters) {
         if (message.contains(item)) {
@@ -58,11 +78,12 @@ class _ChatScreenState extends State<ChatScreen> {
             ch += '*';
           }
           message = message.replaceAll(item, ch);
+          showNotification();
         }
       }
-
+      //Temps d'envoi du message
       var lastMessageTs = DateTime.now();
-
+      //Données à enregistrer pour ce message
       Map<String, dynamic> messageInfoMap = {
         "message": message,
         "sendBy": myUserName,
@@ -71,37 +92,33 @@ class _ChatScreenState extends State<ChatScreen> {
         "type": typeMsg
       };
 
-      //messageId
-      if (messageId == "") {
-        messageId = randomAlphaNumeric(12);
-      }
-
+      //Enregistrer ce message à la base de données
       DatabaseMethods()
-          .addMessage(chatRoomId, messageId, messageInfoMap)
+          .addMessage(chatRoomId, messageInfoMap)
           .then((value) {
         Map<String, dynamic> lastMessageInfoMap = {
           "lastMessage": message,
           "lastMessageSendTs": lastMessageTs,
           "lastMessageSendBy": myUserName
         };
-
+        //Mettre à jour le chatroom(dernier message, temps d'envoi du dernier message...)
         DatabaseMethods().updateLastMessageSend(chatRoomId, lastMessageInfoMap);
 
         if (sendClicked) {
           // remove the text in the message input field
           messageController.text = "";
-          // make message id blank to get regenerated on next message send
-          messageId = "";
         }
       });
     } else {
+      //Si rien n'est écrit et l'utilisateur clique sur "send", un toast est affiché
       Fluttertoast.showToast(
-          msg: 'Nothing to send',
+          msg: 'Rien à envoyer',
           backgroundColor: Colors.red,
           textColor: Colors.white);
     }
   }
 
+  //Méthode de récupérer l'image d'après la gallerie de l'appreil et l'appel à la méthode "uploadFile"
   Future getImage() async {
     ImagePicker imagePicker = ImagePicker();
     PickedFile? pickedFile =
@@ -113,7 +130,7 @@ class _ChatScreenState extends State<ChatScreen> {
       uploadFile(pickedFile);
     }
   }
-
+  //Enregistrer l'image à la base de données (Firebase Storage)
   Future uploadFile(PickedFile file) async {
     String fileName =
         DateTime.now().millisecondsSinceEpoch.toString() + ".jpeg";
@@ -138,6 +155,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  //Widget à afficher si le message est un texte
   Widget chatMessageTile(String message, bool sendByMe) {
     return Row(
       mainAxisAlignment:
@@ -167,6 +185,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  //Widget de List (Stream) des tous les messages dans une chatroom A_B
   Widget chatMessages() {
     return StreamBuilder<dynamic>(
       stream: messageStream,
@@ -178,6 +197,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 reverse: true,
                 itemBuilder: (context, index) {
                   DocumentSnapshot ds = snapshot.data.docs[index];
+                  //Si le type de message est égale à 0 on affiche le widget de message Text, sinon on affiche le widget de message image
                   return ds["type"] == 0
                       ? chatMessageTile(
                           ds["message"], myUserName == ds["sendBy"])
@@ -188,6 +208,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  //Méthode initialisé à l'ouverture de l'interface Chatscreen pour récupérer le messageStream et l'infos de l'utilisateur connecté
   doThisOnLaunch() async {
     await getMyInfoFromSharedPreferences();
     messageStream = await DatabaseMethods().getChatRoomMessages(chatRoomId);
@@ -236,6 +257,7 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Stack(
           children: [
             chatMessages(),
+            //Bar en bas (TextField, button pour l'image, boutton pour l'envoi
             Container(
               alignment: Alignment.bottomCenter,
               padding: EdgeInsets.only(bottom: 10),

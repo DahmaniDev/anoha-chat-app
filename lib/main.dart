@@ -1,4 +1,5 @@
 
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -55,6 +56,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
 
+
   @override
   void initState() {
     super.initState();
@@ -100,8 +102,6 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -115,7 +115,6 @@ class _MyAppState extends State<MyApp> {
         future: AuthMethods().getCurrentUser(),
         builder: (context, AsyncSnapshot<dynamic> snapshot){
           if(snapshot.hasData){
-            //showNotification();
             return Home();
           } else {
             return SignIn();

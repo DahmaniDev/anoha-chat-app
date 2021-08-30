@@ -130,6 +130,7 @@ class _ChatScreenState extends State<ChatScreen> {
       uploadFile(pickedFile);
     }
   }
+
   //Enregistrer l'image à la base de données (Firebase Storage)
   Future uploadFile(PickedFile file) async {
     String fileName =

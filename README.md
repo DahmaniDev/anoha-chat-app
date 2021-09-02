@@ -1,6 +1,8 @@
 # Kelemni Chat Application Built using FLutter / Firebase
 
 Kelemni Chat App
+![version](https://img.shields.io/badge/version-2.3.0-blue) 
+
 
 ## Getting Started
 

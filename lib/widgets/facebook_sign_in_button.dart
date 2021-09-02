@@ -1,6 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:kelemni/services/auth.dart';
 
 class FacebookSignInButton extends StatefulWidget {
   @override

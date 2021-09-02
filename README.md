@@ -1,18 +1,19 @@
 # Kelemni Chat Application Built using FLutter / Firebase
 
 Kelemni Chat App
+
 ![version](https://img.shields.io/badge/version-2.3.0-blue) 
 
+# Screens
 
-## Getting Started
+![GIF1](screenshots/Kelemni.gif)
 
-This project is a starting point for a Flutter application.
+<pre>
 
-A few resources to get you started if this is your first Flutter project:
+</pre>
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+## 👨🏻‍💻 Author
+My name is Mohamed Hedi Dahmani, I am a software developer, I am learning new things all the time. Feel free to contact me! 😀
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- [LinkedIn](https://www.linkedin.com/in/mohamed-hedi-dahmani/)
+- [GitHub](https://github.com/DahmaniDev)

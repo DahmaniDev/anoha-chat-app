@@ -1,4 +1,4 @@
-# kelemni
+# Kelemni Chat Application Built using FLutter / Firebase
 
 Kelemni Chat App
 
